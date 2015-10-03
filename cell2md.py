@@ -1,13 +1,15 @@
 #!/usr/bin/env python
 '''cell2md: turn current cell issue page into Markdown-structured text'''
-__version__ = '1.2.1'
+__version__ = '1.3'
 __author__ = 'Liang Cai (i@cailiang.net)'
-# TODO:
-# download
-# send to sc.ftqq.com
+
+import time
+tag = 'cell_%s' % time.strftime('%Y-%m-%d-%H%M')
+import os
+os.system('/usr/bin/wget http://www.cell.com/cell/current -O %s.html' % tag)
 
 from bs4 import BeautifulSoup
-soup = BeautifulSoup( open("test.html", 'r'), 'lxml' )
+soup = BeautifulSoup( open('%s.html' % tag, 'r'), 'lxml' )
 a = soup.select("ol.articleCitations")
 b = a[0].prettify()
 
@@ -24,12 +26,11 @@ d = c.replace('\n\nIn Brief  Summary  Full-Text HTML  PDF', ''
     ).replace('.sml)\n\n', '.sml)\n\n### '
     ).replace('> (Cell', '(Cell')
 
-import time
 import urllib
 import urllib2
 SCKEY = open('SCKEY.txt', 'r').read().strip()
 url = 'http://sc.ftqq.com/%s.send' % SCKEY
-values = { 'text': "Cell, %s" % time.strftime('%Y/%m/%d %H:%M'),
+values = { 'text': "Cell, %s" % tag[4:],
            'desp': unicode(d).encode('utf-8') }
 data = urllib.urlencode(values)
 req = urllib2.Request(url, data)
